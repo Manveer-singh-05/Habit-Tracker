@@ -7,13 +7,21 @@ export const useAuthStore = defineStore('auth', () => {
   const token = ref(null)
   const loading = ref(false)
   const error = ref(null)
+  const isReady = ref(false)
+  let initPromise = null
 
   const isAuthenticated = computed(() => user.value !== null && token.value !== null)
 
   // Initialize from localStorage
   const initAuth = async () => {
+    if (initPromise) {
+      return initPromise
+    }
+
+    initPromise = (async () => {
     try {
       loading.value = true
+      isReady.value = false
       const savedToken = localStorage.getItem('token')
       
       if (savedToken) {
@@ -33,7 +41,11 @@ export const useAuthStore = defineStore('auth', () => {
       console.error('Auth initialization failed:', err)
     } finally {
       loading.value = false
+      isReady.value = true
     }
+    })()
+
+    return initPromise
   }
 
   const login = async (email, password) => {
@@ -100,6 +112,7 @@ export const useAuthStore = defineStore('auth', () => {
     token,
     loading,
     error,
+    isReady,
     isAuthenticated,
     initAuth,
     login,

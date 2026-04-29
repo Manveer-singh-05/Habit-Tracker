@@ -119,16 +119,13 @@ const clearError = () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  background-image:
+    linear-gradient(rgba(6, 12, 24, 0.56), rgba(6, 12, 24, 0.56)),
+    url('/auth-background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   z-index: 0;
-}
-
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
 }
 
 /* Content */
@@ -145,10 +142,12 @@ const clearError = () => {
 
 /* Card */
 .login-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.32);
   border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
   width: 100%;
   max-width: 400px;
   padding: 2.5rem 2rem;
@@ -186,13 +185,13 @@ const clearError = () => {
 .header h1 {
   margin: 0.5rem 0;
   font-size: 1.8rem;
-  color: #667eea;
+  color: #ffffff;
   font-weight: 700;
 }
 
 .header p {
   margin: 0;
-  color: #999;
+  color: rgba(255, 255, 255, 0.84);
   font-size: 0.9rem;
 }
 
@@ -250,23 +249,23 @@ const clearError = () => {
 .input {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: #f8f9fa;
-  border: 2px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 8px;
   font-size: 1rem;
-  color: #333;
+  color: #ffffff;
   transition: all 0.3s ease;
 }
 
 .input:focus {
   outline: none;
-  background: #fff;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background: rgba(255, 255, 255, 0.24);
+  border-color: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
 }
 
 .input::placeholder {
-  color: #999;
+  color: rgba(255, 255, 255, 0.78);
 }
 
 .input:disabled {
@@ -329,24 +328,24 @@ const clearError = () => {
 .footer {
   text-align: center;
   padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .footer p {
   margin: 0;
-  color: #666;
+  color: rgba(255, 255, 255, 0.86);
   font-size: 0.9rem;
 }
 
 .link {
-  color: #667eea;
+  color: #dbeafe;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s ease;
 }
 
 .link:hover {
-  color: #764ba2;
+  color: #ffffff;
   text-decoration: underline;
 }
 

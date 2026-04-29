@@ -5,14 +5,18 @@ import router from './router/index.js'
 import { useAuthStore } from './store/authStore.js'
 import './styles.css'
 
-const app = createApp(App)
-const pinia = createPinia()
+async function bootstrap() {
+	const app = createApp(App)
+	const pinia = createPinia()
 
-app.use(pinia)
-app.use(router)
+	app.use(pinia)
+	app.use(router)
 
-// Initialize authentication from localStorage
-const authStore = useAuthStore()
-authStore.initAuth()
+	// Initialize authentication from localStorage before the first route decision
+	const authStore = useAuthStore()
+	await authStore.initAuth()
 
-app.mount('#app')
+	app.mount('#app')
+}
+
+bootstrap()

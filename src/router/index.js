@@ -33,8 +33,12 @@ const router = createRouter({
 })
 
 // Navigation guard to protect routes
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
+
+  if (!authStore.isReady) {
+    await authStore.initAuth()
+  }
   
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     // Redirect to login if route requires auth and user is not logged in
