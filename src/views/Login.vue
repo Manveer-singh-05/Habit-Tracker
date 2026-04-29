@@ -110,6 +110,7 @@ const clearError = () => {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  background: #0b1320;
 }
 
 /* Background Image */

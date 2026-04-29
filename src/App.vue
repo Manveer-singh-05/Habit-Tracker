@@ -1,12 +1,32 @@
 <template>
   <router-view v-slot="{ Component, route }">
-    <Transition name="route-fade" mode="out-in">
+    <Transition name="route-fade">
       <component :is="Component" :key="route.fullPath" />
     </Transition>
   </router-view>
 </template>
 
 <script setup>
+import { onBeforeUnmount, watch } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
+function isAuthPath(path) {
+  return path === '/login' || path === '/signup'
+}
+
+watch(
+  () => route.path,
+  (path) => {
+    document.body.classList.toggle('auth-route', isAuthPath(path))
+  },
+  { immediate: true },
+)
+
+onBeforeUnmount(() => {
+  document.body.classList.remove('auth-route')
+})
 </script>
 
 <style>
@@ -18,18 +38,20 @@
 
 .route-fade-enter-active,
 .route-fade-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition: transform 0.2s ease;
 }
 
 .route-fade-enter-from,
 .route-fade-leave-to {
-  opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(6px);
 }
 
 .route-fade-enter-to,
 .route-fade-leave-from {
-  opacity: 1;
   transform: translateY(0);
+}
+
+body.auth-route {
+  background: #0b1320;
 }
 </style>
