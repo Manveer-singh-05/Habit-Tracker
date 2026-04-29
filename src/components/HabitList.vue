@@ -7,7 +7,7 @@
 
     <HabitCard
       v-for="habit in habits"
-      :key="habit.id"
+      :key="habit._id"
       :habit="habit"
       @mark-done="$emit('mark-done', $event)"
       @edit="$emit('edit', $event)"

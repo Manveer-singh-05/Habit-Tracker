@@ -16,7 +16,7 @@
           </p>
         </div>
 
-        <button class="icon-button" type="button" @click="$emit('close')">
+        <button class="icon-button" type="button" :disabled="saving" @click="$emit('close')">
           Close
         </button>
       </div>
@@ -30,6 +30,7 @@
             type="text"
             maxlength="60"
             placeholder="Exercise, Read, Journal..."
+            :disabled="saving"
           />
         </div>
 
@@ -40,16 +41,17 @@
             v-model.trim="form.description"
             maxlength="180"
             placeholder="Optional note or reminder"
+            :disabled="saving"
           />
         </div>
 
         <p v-if="errorMessage" class="field-error">{{ errorMessage }}</p>
 
         <div class="form-actions">
-          <button class="primary-button" type="submit">
-            {{ isEditing ? "Save changes" : "Create habit" }}
+          <button class="primary-button" type="submit" :disabled="saving">
+            {{ saving ? "Saving..." : isEditing ? "Save changes" : "Create habit" }}
           </button>
-          <button class="ghost-button" type="button" @click="$emit('close')">
+          <button class="ghost-button" type="button" :disabled="saving" @click="$emit('close')">
             Cancel
           </button>
         </div>
@@ -69,6 +71,10 @@ const props = defineProps({
   habit: {
     type: Object,
     default: null,
+  },
+  saving: {
+    type: Boolean,
+    default: false,
   },
 });
 

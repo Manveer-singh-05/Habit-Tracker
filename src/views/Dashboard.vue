@@ -1,14 +1,18 @@
 <template>
-  <div class="app-shell">
+  <div class="app-shell" :aria-busy="habitStore.loading">
     <Navbar @create="openCreateForm" @seed-demo="seedDemoHabits" />
 
     <main class="page">
       <section class="hero">
         <div class="hero-copy">
+          <span class="eyebrow">Personal habit dashboard</span>
           <h1>Track habits with a clean local-first dashboard.</h1>
           <p>
             Create habits, check them off once a day, and let streaks plus
             charts show where consistency is building.
+          </p>
+          <p class="hero-status" :class="dashboardState.tone">
+            {{ dashboardState.label }}
           </p>
         </div>
 
@@ -40,7 +44,19 @@
           <p class="summary-value">{{ habitStore.activeStreakCount }}</p>
           <p class="summary-help">Your strongest consecutive run so far.</p>
         </article>
+
+        <article class="summary-card">
+          <p class="summary-label">Completion rate</p>
+          <p class="summary-value">{{ habitStore.completionRate }}%</p>
+          <p class="summary-help">How many tracked habits have at least one check-in.</p>
+        </article>
       </section>
+
+      <Transition name="fade">
+        <p v-if="habitStore.error" class="sync-banner danger">
+          {{ habitStore.error }}
+        </p>
+      </Transition>
 
       <section class="layout-grid">
         <div class="panel">
@@ -49,6 +65,10 @@
               <h2 class="section-title">Habits</h2>
               <p class="section-copy">
                 Update one habit at a time and keep the list focused.
+              </p>
+              <p class="section-copy subtle">
+                Showing {{ filteredHabits.length }} habit
+                {{ filteredHabits.length === 1 ? 'item' : 'items' }} in this view.
               </p>
             </div>
 
@@ -95,6 +115,7 @@
     <AddHabitForm
       v-if="isFormVisible"
       :habit="editingHabit"
+      :saving="isSubmitting"
       @close="closeForm"
       @save="saveHabit"
     />
@@ -114,6 +135,7 @@ const habitStore = useHabitStore();
 const filter = ref("all");
 const isFormVisible = ref(false);
 const editingHabit = ref(null);
+const isSubmitting = ref(false);
 
 // Load habits on component mount
 onMounted(() => {
@@ -140,6 +162,27 @@ const filteredHabits = computed(() => {
   return habitStore.habits;
 });
 
+const dashboardState = computed(() => {
+  if (habitStore.error) {
+    return {
+      label: habitStore.error,
+      tone: "danger",
+    };
+  }
+
+  if (habitStore.loading || isSubmitting.value) {
+    return {
+      label: "Saving your latest changes...",
+      tone: "loading",
+    };
+  }
+
+  return {
+    label: `${habitStore.completedTodayCount} habits completed today · ${habitStore.completionRate}% completion rate`,
+    tone: "ready",
+  };
+});
+
 function openCreateForm() {
   editingHabit.value = null;
   isFormVisible.value = true;
@@ -155,27 +198,33 @@ function closeForm() {
   editingHabit.value = null;
 }
 
-function saveHabit(payload) {
-  if (editingHabit.value) {
-    habitStore.updateHabit(editingHabit.value.id, payload);
-  } else {
-    habitStore.addHabit(payload);
+async function saveHabit(payload) {
+  isSubmitting.value = true;
+
+  try {
+    if (editingHabit.value) {
+      await habitStore.updateHabit(editingHabit.value._id, payload);
+    } else {
+      await habitStore.addHabit(payload);
+    }
+
+    closeForm();
+  } finally {
+    isSubmitting.value = false;
   }
-
-  closeForm();
 }
 
-function markHabitAsDone(habitId) {
-  habitStore.markHabitAsDone(habitId);
+async function markHabitAsDone(habitId) {
+  await habitStore.markHabitAsDone(habitId);
 }
 
-function deleteHabit(habitId) {
+async function deleteHabit(habitId) {
   if (window.confirm("Delete this habit? This cannot be undone.")) {
-    habitStore.deleteHabit(habitId);
+    await habitStore.deleteHabit(habitId);
   }
 }
 
-function seedDemoHabits() {
-  habitStore.seedDemoHabits();
+async function seedDemoHabits() {
+  await habitStore.seedDemoHabits();
 }
 </script>

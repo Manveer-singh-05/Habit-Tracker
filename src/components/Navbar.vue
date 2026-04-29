@@ -10,6 +10,7 @@
       </div>
 
       <div class="nav-actions">
+        <span v-if="userEmail" class="session-chip">{{ userEmail }}</span>
         <button class="ghost-button" type="button" @click="$emit('seed-demo')">
           Load demo habits
         </button>
@@ -25,6 +26,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../store/authStore'
 
@@ -32,6 +34,8 @@ defineEmits(["create", "seed-demo"]);
 
 const router = useRouter()
 const authStore = useAuthStore()
+
+const userEmail = computed(() => authStore.user?.email ?? '')
 
 const handleLogout = () => {
   authStore.logout()
