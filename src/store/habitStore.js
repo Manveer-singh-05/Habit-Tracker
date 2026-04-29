@@ -1,164 +1,184 @@
 import { defineStore } from 'pinia'
-import {
-  formatLocalDate,
-  recalculateStreak,
-  sortDatesAscending,
-} from '../utils/date'
+import { ref, computed } from 'vue'
+import { habitsAPI } from '../services/habitsAPI.js'
+import { formatLocalDate } from '../utils/date'
 
-const STORAGE_KEY = 'habit-tracker-v1'
+export const useHabitStore = defineStore('habits', () => {
+  const habits = ref([])
+  const loading = ref(false)
+  const error = ref(null)
 
-function createHabitId(habits) {
-  return habits.length === 0 ? 1 : Math.max(...habits.map((habit) => habit.id)) + 1
-}
+  // Getters
+  const totalHabits = computed(() => habits.value.length)
 
-function loadHabits() {
-  if (typeof window === 'undefined') {
-    return []
+  const completedTodayCount = computed(() => {
+    const today = formatLocalDate()
+    return habits.value.filter((habit) => habit.history.includes(today)).length
+  })
+
+  const activeStreakCount = computed(() => {
+    if (habits.value.length === 0) return 0
+    return Math.max(...habits.value.map(h => h.streak), 0)
+  })
+
+  const completionRate = computed(() => {
+    if (habits.value.length === 0) return 0
+    const completedHabits = habits.value.filter((habit) => habit.history.length > 0).length
+    return Math.round((completedHabits / habits.value.length) * 100)
+  })
+
+  // Actions
+  const loadHabits = async () => {
+    try {
+      loading.value = true
+      error.value = null
+      const data = await habitsAPI.getHabits()
+      habits.value = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    } catch (err) {
+      error.value = err.message
+      console.error('Failed to load habits:', err)
+    } finally {
+      loading.value = false
+    }
   }
 
-  const rawHabits = window.localStorage.getItem(STORAGE_KEY)
-
-  if (!rawHabits) {
-    return []
+  const addHabit = async (payload) => {
+    try {
+      loading.value = true
+      error.value = null
+      const newHabit = await habitsAPI.createHabit(
+        payload.name.trim(),
+        payload.description?.trim() || ''
+      )
+      habits.value.unshift(newHabit)
+      return newHabit
+    } catch (err) {
+      error.value = err.message
+      throw err
+    } finally {
+      loading.value = false
+    }
   }
 
-  try {
-    const parsedHabits = JSON.parse(rawHabits)
-
-    return parsedHabits.map((habit) => ({
-      ...habit,
-      history: sortDatesAscending(habit.history ?? []),
-      streak: recalculateStreak(habit.history ?? []),
-    }))
-  } catch {
-    return []
+  const updateHabit = async (habitId, payload) => {
+    try {
+      loading.value = true
+      error.value = null
+      const updatedHabit = await habitsAPI.updateHabit(
+        habitId,
+        payload.name.trim(),
+        payload.description?.trim() || ''
+      )
+      habits.value = habits.value.map((h) =>
+        h._id === habitId ? updatedHabit : h
+      )
+      return updatedHabit
+    } catch (err) {
+      error.value = err.message
+      throw err
+    } finally {
+      loading.value = false
+    }
   }
-}
 
-function persistHabits(habits) {
-  if (typeof window === 'undefined') {
-    return
+  const deleteHabit = async (habitId) => {
+    try {
+      loading.value = true
+      error.value = null
+      await habitsAPI.deleteHabit(habitId)
+      habits.value = habits.value.filter((h) => h._id !== habitId)
+    } catch (err) {
+      error.value = err.message
+      throw err
+    } finally {
+      loading.value = false
+    }
   }
 
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(habits))
-}
+  const markHabitAsDone = async (habitId) => {
+    try {
+      loading.value = true
+      error.value = null
+      const updatedHabit = await habitsAPI.markHabitDone(habitId)
+      habits.value = habits.value.map((h) =>
+        h._id === habitId ? updatedHabit : h
+      )
+      return updatedHabit
+    } catch (err) {
+      error.value = err.message
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
 
-export const useHabitStore = defineStore('habits', {
-  state: () => ({
-    habits: loadHabits(),
-  }),
-  getters: {
-    totalHabits: (state) => state.habits.length,
-    completedTodayCount: (state) => {
-      const today = formatLocalDate()
+  const unmarkHabitDone = async (habitId, date) => {
+    try {
+      loading.value = true
+      error.value = null
+      const updatedHabit = await habitsAPI.unmarkHabitDone(habitId, date)
+      habits.value = habits.value.map((h) =>
+        h._id === habitId ? updatedHabit : h
+      )
+      return updatedHabit
+    } catch (err) {
+      error.value = err.message
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
 
-      return state.habits.filter((habit) => habit.history.includes(today)).length
-    },
-    activeStreakCount: (state) => {
-      if (state.habits.length === 0) {
-        return 0
-      }
+  const seedDemoHabits = async () => {
+    try {
+      loading.value = true
+      error.value = null
 
-      return state.habits.reduce((highestStreak, habit) => {
-        return Math.max(highestStreak, habit.streak)
-      }, 0)
-    },
-    completionRate: (state) => {
-      if (state.habits.length === 0) {
-        return 0
-      }
-
-      const completedHabits = state.habits.filter((habit) => habit.history.length > 0).length
-
-      return Math.round((completedHabits / state.habits.length) * 100)
-    },
-  },
-  actions: {
-    syncStorage() {
-      persistHabits(this.habits)
-    },
-    addHabit(payload) {
-      const nextHabit = {
-        id: createHabitId(this.habits),
-        name: payload.name.trim(),
-        description: payload.description.trim(),
-        streak: 0,
-        history: [],
-      }
-
-      this.habits.unshift(nextHabit)
-      this.syncStorage()
-    },
-    updateHabit(habitId, payload) {
-      this.habits = this.habits.map((habit) => {
-        if (habit.id !== habitId) {
-          return habit
-        }
-
-        return {
-          ...habit,
-          name: payload.name.trim(),
-          description: payload.description.trim(),
-        }
-      })
-
-      this.syncStorage()
-    },
-    deleteHabit(habitId) {
-      this.habits = this.habits.filter((habit) => habit.id !== habitId)
-      this.syncStorage()
-    },
-    markHabitAsDone(habitId) {
-      const today = formatLocalDate()
-
-      this.habits = this.habits.map((habit) => {
-        if (habit.id !== habitId || habit.history.includes(today)) {
-          return habit
-        }
-
-        const history = sortDatesAscending([...habit.history, today])
-
-        return {
-          ...habit,
-          history,
-          streak: recalculateStreak(history),
-        }
-      })
-
-      this.syncStorage()
-    },
-    seedDemoHabits() {
-      if (this.habits.length > 0) {
-        return
-      }
-
-      const today = formatLocalDate()
-      const yesterday = new Date()
-      yesterday.setDate(yesterday.getDate() - 1)
-
-      const twoDaysAgo = new Date()
-      twoDaysAgo.setDate(twoDaysAgo.getDate() - 2)
-
-      const habitHistory = [formatLocalDate(twoDaysAgo), formatLocalDate(yesterday), today]
-
-      this.habits = [
+      const demoHabits = [
         {
-          id: 1,
-          name: 'Exercise',
-          description: 'Workout daily for at least 20 minutes.',
-          streak: recalculateStreak(habitHistory),
-          history: habitHistory,
+          name: 'Morning Jog',
+          description: 'Run 5km every morning before breakfast'
         },
         {
-          id: 2,
-          name: 'Read',
-          description: 'Read one chapter before bed.',
-          streak: 0,
-          history: [],
+          name: 'Read Book',
+          description: 'Read at least 30 pages of a book'
         },
+        {
+          name: 'Meditation',
+          description: 'Meditate for 15 minutes in the evening'
+        }
       ]
 
-      this.syncStorage()
-    },
-  },
+      for (const habit of demoHabits) {
+        await addHabit(habit)
+      }
+    } catch (err) {
+      error.value = err.message
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return {
+    // State
+    habits,
+    loading,
+    error,
+
+    // Getters
+    totalHabits,
+    completedTodayCount,
+    activeStreakCount,
+    completionRate,
+
+    // Actions
+    loadHabits,
+    addHabit,
+    updateHabit,
+    deleteHabit,
+    markHabitAsDone,
+    unmarkHabitDone,
+    seedDemoHabits
+  }
 })

@@ -25,7 +25,7 @@
         class="primary-button"
         type="button"
         :disabled="completedToday"
-        @click="$emit('mark-done', habit.id)"
+        @click="$emit('mark-done', habit._id)"
       >
         {{ completedToday ? "Done for today" : "Mark as done" }}
       </button>
@@ -35,7 +35,7 @@
       <button
         class="danger-button"
         type="button"
-        @click="$emit('delete', habit.id)"
+        @click="$emit('delete', habit._id)"
       >
         Delete
       </button>

@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import cookieParser from 'cookie-parser'
 import { connectDB } from './config/database.js'
 import authRoutes from './routes/authRoutes.js'
+import habitRoutes from './routes/habitRoutes.js'
 
 // Load environment variables
 dotenv.config()
@@ -25,6 +26,7 @@ app.use(cookieParser())
 
 // Routes
 app.use('/api/auth', authRoutes)
+app.use('/api/habits', habitRoutes)
 
 // Health check
 app.get('/api/health', (req, res) => {

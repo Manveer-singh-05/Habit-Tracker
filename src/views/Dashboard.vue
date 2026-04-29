@@ -102,7 +102,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 import AddHabitForm from "../components/AddHabitForm.vue";
 import HabitList from "../components/HabitList.vue";
 import Navbar from "../components/Navbar.vue";
@@ -114,6 +114,11 @@ const habitStore = useHabitStore();
 const filter = ref("all");
 const isFormVisible = ref(false);
 const editingHabit = ref(null);
+
+// Load habits on component mount
+onMounted(() => {
+  habitStore.loadHabits()
+})
 
 const filterOptions = [
   { label: "All", value: "all" },
