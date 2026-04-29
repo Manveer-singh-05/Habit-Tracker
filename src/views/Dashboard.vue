@@ -1,6 +1,6 @@
 <template>
   <div class="app-shell" :aria-busy="habitStore.loading">
-    <Navbar @create="openCreateForm" @seed-demo="seedDemoHabits" />
+    <Navbar @create="openCreateForm" />
 
     <main class="page">
       <section class="hero">
@@ -19,9 +19,6 @@
         <div class="action-row">
           <button class="primary-button" type="button" @click="openCreateForm">
             Add a habit
-          </button>
-          <button class="ghost-button" type="button" @click="seedDemoHabits">
-            Use demo data
           </button>
         </div>
       </section>
@@ -224,7 +221,4 @@ async function deleteHabit(habitId) {
   }
 }
 
-async function seedDemoHabits() {
-  await habitStore.seedDemoHabits();
-}
 </script>
