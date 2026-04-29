@@ -1,57 +1,76 @@
 <template>
-  <div class="auth-container">
-    <div class="auth-card">
-      <h1>Sign Up</h1>
-
-      <form @submit.prevent="handleSignup">
-        <div class="form-group">
-          <label for="email">Email:</label>
-          <input
-            id="email"
-            v-model="email"
-            type="email"
-            placeholder="Enter your email"
-            required
-            :disabled="authStore.loading"
-          />
+  <div class="signup-container">
+    <!-- Background image -->
+    <div class="background-image"></div>
+    
+    <!-- Content -->
+    <div class="content">
+      <div class="signup-card">
+        <!-- Logo & Title -->
+        <div class="header">
+          <div class="logo">🎯</div>
+          <h1>Join Us</h1>
+          <p>Start building better habits today</p>
         </div>
 
-        <div class="form-group">
-          <label for="password">Password:</label>
-          <input
-            id="password"
-            v-model="password"
-            type="password"
-            placeholder="At least 6 characters"
-            required
+        <!-- Error Message -->
+        <Transition name="fade">
+          <div v-if="authStore.error || error" class="error-box">
+            <p>{{ authStore.error || error }}</p>
+            <button @click="clearError" class="close-btn">✕</button>
+          </div>
+        </Transition>
+
+        <!-- Signup Form -->
+        <form @submit.prevent="handleSignup" class="form">
+          <div class="form-group">
+            <input
+              v-model="email"
+              type="email"
+              placeholder="Email"
+              required
+              :disabled="authStore.loading"
+              class="input"
+            />
+          </div>
+
+          <div class="form-group">
+            <input
+              v-model="password"
+              type="password"
+              placeholder="Password (6+ characters)"
+              required
+              :disabled="authStore.loading"
+              class="input"
+            />
+          </div>
+
+          <div class="form-group">
+            <input
+              v-model="confirmPassword"
+              type="password"
+              placeholder="Confirm Password"
+              required
+              :disabled="authStore.loading"
+              class="input"
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            class="btn-signup"
             :disabled="authStore.loading"
-          />
+          >
+            {{ authStore.loading ? 'Creating account...' : 'Sign Up' }}
+          </button>
+        </form>
+
+        <!-- Login Link -->
+        <div class="footer">
+          <p>Already have an account? 
+            <router-link to="/login" class="link">Login</router-link>
+          </p>
         </div>
-
-        <div class="form-group">
-          <label for="confirmPassword">Confirm Password:</label>
-          <input
-            id="confirmPassword"
-            v-model="confirmPassword"
-            type="password"
-            placeholder="Confirm your password"
-            required
-            :disabled="authStore.loading"
-          />
-        </div>
-
-        <button type="submit" class="btn-primary" :disabled="authStore.loading">
-          {{ authStore.loading ? 'Creating account...' : 'Sign Up' }}
-        </button>
-      </form>
-
-      <p class="auth-link">
-        Already have an account?
-        <router-link to="/login">Login</router-link>
-      </p>
-
-      <div v-if="authStore.error || error" class="error-message">
-        {{ authStore.error || error }}
       </div>
     </div>
   </div>
@@ -73,216 +92,269 @@ const handleSignup = async () => {
   error.value = ''
   try {
     await authStore.signup(email.value, password.value, confirmPassword.value)
-    // Redirect to dashboard on successful signup
     router.push('/dashboard')
   } catch (err) {
     error.value = err.message || 'Signup failed'
   }
 }
+
+const clearError = () => {
+  error.value = ''
+  authStore.error = ''
+}
 </script>
 
 <style scoped>
-.auth-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.signup-container {
+  position: relative;
+  width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
-.auth-card {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+/* Background Image */
+.background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  z-index: 0;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Content */
+.content {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+/* Card */
+.signup-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   width: 100%;
   max-width: 400px;
+  padding: 2.5rem 2rem;
+  animation: slideUp 0.6s ease-out;
 }
 
-.auth-card h1 {
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header */
+.header {
   text-align: center;
-  color: #333;
+  margin-bottom: 2rem;
+}
+
+.logo {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.header h1 {
+  margin: 0.5rem 0;
+  font-size: 1.8rem;
+  color: #667eea;
+  font-weight: 700;
+}
+
+.header p {
+  margin: 0;
+  color: #999;
+  font-size: 0.9rem;
+}
+
+/* Error Box */
+.error-box {
+  background: #fee;
+  border-left: 4px solid #dc2626;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.error-box p {
+  margin: 0;
+  color: #dc2626;
+  font-size: 0.9rem;
+  flex: 1;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #dc2626;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 0 0 1rem;
+}
+
+.close-btn:hover {
+  color: #b91c1c;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  position: relative;
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #555;
-  font-weight: 500;
-}
-
-.form-group input {
+.input {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  background: #f8f9fa;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.3s;
+  color: #333;
+  transition: all 0.3s ease;
 }
 
-.form-group input:focus {
+.input:focus {
   outline: none;
+  background: #fff;
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-.form-group input:disabled {
-  background-color: #f5f5f5;
+.input::placeholder {
+  color: #999;
+}
+
+.input:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
-.btn-primary {
+/* Signup Button */
+.btn-signup {
   width: 100%;
   padding: 0.75rem;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
-.btn-primary:hover:not(:disabled) {
+.btn-signup:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
-.btn-primary:active:not(:disabled) {
+.btn-signup:active:not(:disabled) {
   transform: translateY(0);
 }
 
-.btn-primary:disabled {
+.btn-signup:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
 
-.auth-link {
+/* Footer */
+.footer {
   text-align: center;
-  margin-top: 1.5rem;
-  color: #666;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
 }
 
-.auth-link a {
+.footer p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.link {
   color: #667eea;
   text-decoration: none;
   font-weight: 600;
+  transition: color 0.2s ease;
 }
 
-.auth-link a:hover {
+.link:hover {
+  color: #764ba2;
   text-decoration: underline;
 }
 
-.error-message {
-  margin-top: 1rem;
-  padding: 0.75rem;
-  background-color: #fee;
-  color: #c33;
-  border-radius: 4px;
-  text-align: center;
-}
-</style>
-
-<style scoped>
-.auth-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+/* Transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
 }
 
-.auth-card {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  width: 100%;
-  max-width: 400px;
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
-.auth-card h1 {
-  text-align: center;
-  color: #333;
-  margin-bottom: 1.5rem;
-}
+/* Responsive */
+@media (max-width: 480px) {
+  .signup-card {
+    max-width: 100%;
+    padding: 2rem 1.5rem;
+  }
 
-.form-group {
-  margin-bottom: 1rem;
-}
+  .header h1 {
+    font-size: 1.5rem;
+  }
 
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #555;
-  font-weight: 500;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  transition: border-color 0.3s;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.btn-primary {
-  width: 100%;
-  padding: 0.75rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-.auth-link {
-  text-align: center;
-  margin-top: 1.5rem;
-  color: #666;
-}
-
-.auth-link a {
-  color: #667eea;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.auth-link a:hover {
-  text-decoration: underline;
-}
-
-.error-message {
-  margin-top: 1rem;
-  padding: 0.75rem;
-  background-color: #fee;
-  color: #c33;
-  border-radius: 4px;
-  text-align: center;
+  .logo {
+    font-size: 2.5rem;
+  }
 }
 </style>
