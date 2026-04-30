@@ -1071,10 +1071,22 @@ canvas {
   border-right: 0;
   border-top: 0;
   border-radius: 0 0 28px 28px;
-  background: var(--surface);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
+  background: rgba(248, 250, 255, 0.5);
+  backdrop-filter: blur(30px) saturate(180%);
+  border-bottom: 1.5px solid rgba(99, 102, 241, 0.25);
+  box-shadow: 
+    0 8px 32px rgba(99, 102, 241, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1px 0 rgba(99, 102, 241, 0.1);
+}
+
+body.dark-theme .nav-bar {
+  background: rgba(15, 23, 42, 0.55);
+  border-bottom: 1.5px solid rgba(129, 140, 248, 0.2);
+  box-shadow: 
+    0 8px 32px rgba(129, 140, 248, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(129, 140, 248, 0.15);
 }
 
 .theme-button {
