@@ -14,17 +14,22 @@
           <span class="status-indicator" aria-hidden="true"></span>
           <span class="email-text">{{ userEmail }}</span>
         </div>
-        
+
+        <button class="nav-button theme-button" type="button" @click="$emit('toggle-theme')" :title="darkMode ? 'Switch to light mode' : 'Switch to dark mode'">
+          <span class="button-icon" aria-hidden="true">{{ darkMode ? '☀️' : '🌙' }}</span>
+          <span class="button-label">{{ darkMode ? 'Light' : 'Dark' }}</span>
+        </button>
+
         <button class="nav-button profile-button" type="button" @click="$emit('profile')" title="View profile">
           <span class="button-icon" aria-hidden="true">👤</span>
           <span class="button-label">Profile</span>
         </button>
-        
+
         <button class="nav-button primary-button" type="button" @click="$emit('create')" title="Add a new habit">
           <span class="button-icon" aria-hidden="true">➕</span>
           <span class="button-label">Add habit</span>
         </button>
-        
+
         <button class="nav-button logout-button" type="button" @click="handleLogout" title="Sign out">
           <span class="button-icon" aria-hidden="true">🚪</span>
           <span class="button-label">Logout</span>
@@ -39,7 +44,14 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../store/authStore'
 
-defineEmits(["create", "profile"]);
+defineProps({
+  darkMode: {
+    type: Boolean,
+    default: false,
+  },
+})
+
+defineEmits(['create', 'profile', 'toggle-theme'])
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -198,6 +210,17 @@ const handleLogout = () => {
   border: 1px solid #e5e7eb;
 }
 
+.theme-button {
+  background: #0f172a;
+  color: white;
+  border: 1px solid #0f172a;
+}
+
+.theme-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.22);
+}
+
 .profile-button:hover {
   background: #e5e7eb;
   border-color: #d1d5db;
@@ -264,6 +287,10 @@ const handleLogout = () => {
   .nav-button {
     flex: 1;
     min-width: 100px;
+  }
+
+  .theme-button {
+    order: -1;
   }
 
   .email-text {

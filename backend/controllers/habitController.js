@@ -34,7 +34,7 @@ const calculateStreak = (history) => {
 // @access  Private
 export const createHabit = async (req, res) => {
   try {
-    const { name, description } = req.body
+    const { name, description, category, frequency, reminderTime, notes } = req.body
     const userId = req.user.id
 
     // Validation
@@ -46,8 +46,15 @@ export const createHabit = async (req, res) => {
       userId,
       name,
       description: description || '',
+      category: category || 'Health',
+      frequency: frequency || 'daily',
+      reminderTime: reminderTime || '',
+      notes: notes || '',
       streak: 0,
-      history: []
+      bestStreak: 0,
+      history: [],
+      skippedDates: [],
+      lastCompletedAt: null
     })
 
     await habit.save()
@@ -109,7 +116,7 @@ export const getHabit = async (req, res) => {
 export const updateHabit = async (req, res) => {
   try {
     const { id } = req.params
-    const { name, description } = req.body
+    const { name, description, category, frequency, reminderTime, notes } = req.body
     const userId = req.user.id
 
     if (!name) {
@@ -118,7 +125,14 @@ export const updateHabit = async (req, res) => {
 
     const habit = await Habit.findOneAndUpdate(
       { _id: id, userId },
-      { name, description: description || '' },
+      {
+        name,
+        description: description || '',
+        category: category || 'Health',
+        frequency: frequency || 'daily',
+        reminderTime: reminderTime || '',
+        notes: notes || ''
+      },
       { new: true, runValidators: true }
     )
 
@@ -183,9 +197,12 @@ export const markHabitDone = async (req, res) => {
 
     // Add today to history
     habit.history.push(today)
+    habit.skippedDates = habit.skippedDates.filter(date => date !== today)
 
     // Recalculate streak
     habit.streak = calculateStreak(habit.history)
+    habit.bestStreak = Math.max(habit.bestStreak || 0, habit.streak)
+    habit.lastCompletedAt = new Date()
 
     await habit.save()
 
@@ -223,6 +240,7 @@ export const unmarkHabitDone = async (req, res) => {
 
     // Recalculate streak
     habit.streak = calculateStreak(habit.history)
+    habit.lastCompletedAt = habit.history.length > 0 ? new Date(habit.history[habit.history.length - 1]) : null
 
     await habit.save()
 
@@ -248,11 +266,13 @@ export const getHabitStats = async (req, res) => {
     const today = new Date().toISOString().split('T')[0]
     const completedToday = habits.filter(h => h.history.includes(today)).length
     const bestStreak = habits.length > 0 ? Math.max(...habits.map(h => h.streak)) : 0
+    const longestStreakEver = habits.length > 0 ? Math.max(...habits.map(h => h.bestStreak || h.streak)) : 0
 
     const stats = {
       totalHabits: habits.length,
       completedToday,
       bestStreak,
+      longestStreakEver,
       completionRate: habits.length > 0 ? Math.round((completedToday / habits.length) * 100) : 0
     }
 
@@ -264,3 +284,39 @@ export const getHabitStats = async (req, res) => {
     res.status(500).json({ message: error.message })
   }
 }
+
+  // @route   POST /api/habits/:id/skip-day
+  // @desc    Mark habit as skipped for today
+  // @access  Private
+  export const skipHabitDay = async (req, res) => {
+    try {
+      const { id } = req.params
+      const userId = req.user.id
+
+      const today = new Date().toISOString().split('T')[0]
+
+      const habit = await Habit.findOne({ _id: id, userId })
+
+      if (!habit) {
+        return res.status(404).json({ message: 'Habit not found' })
+      }
+
+      if (!habit.skippedDates.includes(today)) {
+        habit.skippedDates.push(today)
+      }
+
+      habit.history = habit.history.filter(date => date !== today)
+      habit.streak = calculateStreak(habit.history)
+      habit.lastCompletedAt = habit.history.length > 0 ? new Date(habit.history[habit.history.length - 1]) : null
+
+      await habit.save()
+
+      res.status(200).json({
+        success: true,
+        message: 'Habit skipped for today',
+        habit
+      })
+    } catch (error) {
+      res.status(500).json({ message: error.message })
+    }
+  }

@@ -3,6 +3,7 @@ import { useAuthStore } from '../store/authStore'
 import Login from '../views/Login.vue'
 import Signup from '../views/Signup.vue'
 import Dashboard from '../views/Dashboard.vue'
+import HabitDetails from '../views/HabitDetails.vue'
 
 const routes = [
   {
@@ -23,6 +24,12 @@ const routes = [
     path: '/dashboard',
     name: 'Dashboard',
     component: Dashboard,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/habits/:id',
+    name: 'HabitDetails',
+    component: HabitDetails,
     meta: { requiresAuth: true }
   }
 ]

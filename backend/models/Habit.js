@@ -17,7 +17,32 @@ const habitSchema = new mongoose.Schema({
     trim: true,
     maxlength: [500, 'Description cannot exceed 500 characters']
   },
+  category: {
+    type: String,
+    default: 'Health',
+    trim: true
+  },
+  frequency: {
+    type: String,
+    default: 'daily',
+    trim: true
+  },
+  reminderTime: {
+    type: String,
+    default: ''
+  },
+  notes: {
+    type: String,
+    default: '',
+    trim: true,
+    maxlength: [200, 'Notes cannot exceed 200 characters']
+  },
   streak: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  bestStreak: {
     type: Number,
     default: 0,
     min: 0
@@ -25,6 +50,14 @@ const habitSchema = new mongoose.Schema({
   history: {
     type: [String],  // Array of dates in YYYY-MM-DD format
     default: []
+  },
+  skippedDates: {
+    type: [String],
+    default: []
+  },
+  lastCompletedAt: {
+    type: Date,
+    default: null
   },
   createdAt: {
     type: Date,

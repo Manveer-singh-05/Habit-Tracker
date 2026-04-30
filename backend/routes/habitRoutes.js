@@ -7,6 +7,7 @@ import {
   deleteHabit,
   markHabitDone,
   unmarkHabitDone,
+  skipHabitDay,
   getHabitStats
 } from '../controllers/habitController.js'
 import { authMiddleware } from '../middleware/auth.js'
@@ -27,5 +28,6 @@ router.delete('/:id', deleteHabit)
 // Habit marking operations
 router.post('/:id/mark-done', markHabitDone)
 router.post('/:id/unmark-done', unmarkHabitDone)
+router.post('/:id/skip-day', skipHabitDay)
 
 export default router
