@@ -172,6 +172,20 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  const changePassword = async (currentPassword, newPassword, confirmPassword) => {
+    try {
+      loading.value = true
+      error.value = null
+
+      return await authAPI.changePassword(currentPassword, newPassword, confirmPassword)
+    } catch (err) {
+      error.value = err.message
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     user,
     token,
@@ -185,6 +199,7 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     signup,
     logout,
+    changePassword,
     updateProfile,
   }
 })

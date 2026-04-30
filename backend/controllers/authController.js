@@ -146,3 +146,44 @@ export const getCurrentUser = async (req, res) => {
     res.status(500).json({ message: error.message })
   }
 }
+
+// @route   PUT /api/auth/change-password
+// @desc    Change logged in user's password
+// @access  Private
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ message: 'All fields are required' })
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: 'New password must be at least 6 characters' })
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: 'New password and confirm password do not match' })
+    }
+
+    const user = await User.findById(req.user.id).select('+password')
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+
+    const isCurrentPasswordValid = await user.comparePassword(currentPassword)
+    if (!isCurrentPasswordValid) {
+      return res.status(400).json({ message: 'Current password is incorrect' })
+    }
+
+    user.password = newPassword
+    await user.save()
+
+    res.status(200).json({
+      success: true,
+      message: 'Password changed successfully'
+    })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+}

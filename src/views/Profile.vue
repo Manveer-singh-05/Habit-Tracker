@@ -62,17 +62,58 @@
           <button class="action-button primary" type="button" @click="toggleEdit">
             {{ isEditing ? 'Save Profile' : 'Edit Profile' }}
           </button>
-          <button class="action-button accent" type="button" @click="showPasswordHint = !showPasswordHint">
-            Change Password
+          <button class="action-button accent" type="button" @click="togglePasswordForm">
+            {{ showPasswordForm ? 'Cancel Password Change' : 'Change Password' }}
           </button>
           <button class="action-button ghost" type="button" @click="goToDashboard">
             Back to Dashboard
           </button>
         </div>
 
-        <p v-if="showPasswordHint" class="helper-note">
-          Password change API is not connected yet. Use the same account email for now.
-        </p>
+        <form v-if="showPasswordForm" class="password-form" @submit.prevent="submitPasswordChange">
+          <div class="password-grid">
+            <label>
+              Current Password
+              <input
+                v-model="passwordForm.currentPassword"
+                class="profile-input"
+                type="password"
+                autocomplete="current-password"
+                required
+              />
+            </label>
+
+            <label>
+              New Password
+              <input
+                v-model="passwordForm.newPassword"
+                class="profile-input"
+                type="password"
+                autocomplete="new-password"
+                minlength="6"
+                required
+              />
+            </label>
+
+            <label>
+              Confirm New Password
+              <input
+                v-model="passwordForm.confirmPassword"
+                class="profile-input"
+                type="password"
+                autocomplete="new-password"
+                minlength="6"
+                required
+              />
+            </label>
+          </div>
+
+          <button class="action-button primary" type="submit" :disabled="authStore.loading">
+            {{ authStore.loading ? 'Updating...' : 'Update Password' }}
+          </button>
+        </form>
+
+        <p v-if="passwordMessage" class="helper-note">{{ passwordMessage }}</p>
       </section>
     </main>
   </div>
@@ -87,11 +128,17 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const isEditing = ref(false)
-const showPasswordHint = ref(false)
+const showPasswordForm = ref(false)
+const passwordMessage = ref('')
 const draft = reactive({
   name: '',
   phone: '',
   bio: '',
+})
+const passwordForm = reactive({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: '',
 })
 
 watch(
@@ -147,6 +194,43 @@ const toggleEdit = () => {
 
 const goToDashboard = () => {
   router.push('/dashboard')
+}
+
+const resetPasswordForm = () => {
+  passwordForm.currentPassword = ''
+  passwordForm.newPassword = ''
+  passwordForm.confirmPassword = ''
+}
+
+const togglePasswordForm = () => {
+  showPasswordForm.value = !showPasswordForm.value
+  passwordMessage.value = ''
+
+  if (!showPasswordForm.value) {
+    resetPasswordForm()
+  }
+}
+
+const submitPasswordChange = async () => {
+  passwordMessage.value = ''
+
+  if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+    passwordMessage.value = 'New password and confirm password do not match.'
+    return
+  }
+
+  try {
+    const response = await authStore.changePassword(
+      passwordForm.currentPassword,
+      passwordForm.newPassword,
+      passwordForm.confirmPassword,
+    )
+    passwordMessage.value = response.message || 'Password changed successfully.'
+    resetPasswordForm()
+    showPasswordForm.value = false
+  } catch (error) {
+    passwordMessage.value = error.message || 'Failed to change password.'
+  }
 }
 </script>
 
@@ -284,6 +368,23 @@ const goToDashboard = () => {
   margin-top: 0.85rem;
   color: #0f1d37;
   font-weight: 600;
+}
+
+.password-form {
+  margin-top: 1rem;
+}
+
+.password-grid {
+  display: grid;
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.password-grid label {
+  display: block;
+  color: #0a1428;
+  font-weight: 700;
+  font-size: 0.95rem;
 }
 
 @media (max-width: 768px) {
