@@ -14,6 +14,7 @@
       @delete="$emit('delete', $event)"
       @skip-day="$emit('skip-day', $event)"
       @open="$emit('open', $event)"
+      @reminder="$emit('reminder', $event)"
     />
   </div>
 </template>
@@ -28,5 +29,5 @@ defineProps({
   },
 });
 
-defineEmits(['mark-done', 'edit', 'delete', 'skip-day', 'open'])
+defineEmits(['mark-done', 'edit', 'delete', 'skip-day', 'open', 'reminder'])
 </script>

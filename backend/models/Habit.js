@@ -27,6 +27,24 @@ const habitSchema = new mongoose.Schema({
     default: 'daily',
     trim: true
   },
+  reminder: {
+    enabled: {
+      type: Boolean,
+      default: false
+    },
+    time: {
+      type: String,  // HH:mm format, e.g., "09:30"
+      default: ''
+    },
+    days: {
+      type: [String],  // ['Monday', 'Tuesday', ...] or 'daily' for all days
+      default: []
+    },
+    notificationType: {
+      type: String,  // 'browser', 'email', 'both', 'none'
+      default: 'browser'
+    }
+  },
   reminderTime: {
     type: String,
     default: ''

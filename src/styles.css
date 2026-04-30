@@ -738,6 +738,23 @@ canvas {
   font-size: 0.92rem;
 }
 
+.reminder-meta {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 8px;
+  background: rgba(29, 78, 216, 0.1);
+  color: var(--primary);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.text-button.active {
+  background: rgba(29, 78, 216, 0.1);
+  color: var(--primary);
+  border-color: rgba(29, 78, 216, 0.24);
+}
+
 .card-actions {
   flex-wrap: wrap;
   margin-top: 16px;

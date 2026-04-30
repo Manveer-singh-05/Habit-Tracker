@@ -223,6 +223,7 @@
             @edit="openEditForm"
             @delete="deleteHabit"
             @open="openHabitDetails"
+            @reminder="openReminderModal"
           />
         </div>
 
@@ -257,6 +258,14 @@
       @save="saveHabit"
     />
 
+    <ReminderModal
+      :isOpen="isReminderModalOpen"
+      :habitName="editingHabit?.name || 'Habit'"
+      :reminder="editingHabit?.reminder || {}"
+      @save="saveReminder"
+      @close="closeReminderModal"
+    />
+
     <ProfileModal :isOpen="isProfileOpen" @close="isProfileOpen = false" />
   </div>
 </template>
@@ -266,6 +275,7 @@ import { computed, ref, onMounted, watch, onBeforeUnmount } from "vue";
 import AddHabitForm from "../components/AddHabitForm.vue";
 import HabitList from "../components/HabitList.vue";
 import HabitInsights from "../components/HabitInsights.vue";
+import ReminderModal from "../components/ReminderModal.vue";
 import Navbar from "../components/Navbar.vue";
 import ProgressChart from "../components/ProgressChart.vue";
 import ProfileModal from "../components/ProfileModal.vue";
@@ -287,6 +297,7 @@ const isFormVisible = ref(false);
 const isProfileOpen = ref(false);
 const editingHabit = ref(null);
 const isSubmitting = ref(false);
+const isReminderModalOpen = ref(false);
 
 // Load habits on component mount
 onMounted(() => {
@@ -505,6 +516,31 @@ async function deleteHabit(habitId) {
 
 function openHabitDetails(habitId) {
   router.push(`/habits/${habitId}`);
+}
+
+function openReminderModal(habit) {
+  editingHabit.value = habit;
+  isReminderModalOpen.value = true;
+}
+
+function closeReminderModal() {
+  isReminderModalOpen.value = false;
+  editingHabit.value = null;
+}
+
+async function saveReminder(reminderConfig) {
+  if (!editingHabit.value) return;
+
+  isSubmitting.value = true;
+
+  try {
+    await habitStore.updateHabit(editingHabit.value._id, {
+      reminder: reminderConfig,
+    });
+    closeReminderModal();
+  } finally {
+    isSubmitting.value = false;
+  }
 }
 
 </script>

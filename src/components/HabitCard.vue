@@ -36,7 +36,7 @@
     <p class="meta">
       <strong>{{ statusLabel }}</strong>
       <span> · Frequency {{ habit.frequency || 'daily' }}</span>
-      <span v-if="habit.reminderTime"> · Reminder {{ formatReminderTime(habit.reminderTime) }}</span>
+      <span v-if="reminderStatus" class="reminder-meta">{{ reminderStatus }}</span>
     </p>
 
     <p v-if="habit.notes" class="habit-notes">{{ habit.notes }}</p>
@@ -52,6 +52,14 @@
       </button>
       <button class="text-button" type="button" @click.stop="$emit('skip-day', habit._id)">
         Skip day
+      </button>
+      <button
+        class="text-button"
+        type="button"
+        :class="{ active: reminderEnabled }"
+        @click.stop="$emit('reminder', habit)"
+      >
+        ⏰ {{ reminderEnabled ? 'Edit reminder' : 'Set reminder' }}
       </button>
       <button class="text-button" type="button" @click.stop="$emit('edit', habit)">
         Edit
@@ -71,6 +79,7 @@
 import { computed } from "vue";
 import { daysBetween, formatLocalDate, parseLocalDate } from "../utils/date";
 import { formatDisplayDate, resolveHabitCategory, resolveHabitIcon } from "../utils/habitMeta";
+import { getReminderInfo } from "../utils/reminders";
 
 const props = defineProps({
   habit: {
@@ -79,7 +88,7 @@ const props = defineProps({
   },
 });
 
-defineEmits(["mark-done", "edit", "delete", "skip-day", "open"]);
+defineEmits(["mark-done", "edit", "delete", "skip-day", "open", "reminder"]);
 
 const habitIcon = computed(() => resolveHabitIcon(props.habit));
 const habitCategory = computed(() => resolveHabitCategory(props.habit));
@@ -110,6 +119,14 @@ const lastCompletedAt = computed(() => {
 
   const lastDate = props.habit.history[props.habit.history.length - 1];
   return formatDisplayDate(parseLocalDate(lastDate));
+});
+
+const reminderEnabled = computed(() => props.habit.reminder?.enabled ?? false);
+
+const reminderStatus = computed(() => {
+  if (!reminderEnabled.value) return null;
+  const info = getReminderInfo(props.habit);
+  return info.status;
 });
 
 function formatReminderTime(reminderTime) {
