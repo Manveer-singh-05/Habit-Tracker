@@ -162,6 +162,8 @@
         </p>
       </Transition>
 
+      <HabitInsights :habits="habitStore.habits" />
+
       <section class="layout-grid">
         <div class="panel">
           <div class="panel-header">
@@ -263,6 +265,7 @@
 import { computed, ref, onMounted, watch, onBeforeUnmount } from "vue";
 import AddHabitForm from "../components/AddHabitForm.vue";
 import HabitList from "../components/HabitList.vue";
+import HabitInsights from "../components/HabitInsights.vue";
 import Navbar from "../components/Navbar.vue";
 import ProgressChart from "../components/ProgressChart.vue";
 import ProfileModal from "../components/ProfileModal.vue";
