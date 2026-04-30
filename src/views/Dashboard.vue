@@ -1,6 +1,6 @@
 <template>
   <div class="app-shell" :aria-busy="habitStore.loading">
-    <Navbar @create="openCreateForm" />
+    <Navbar @create="openCreateForm" @profile="openProfileModal" />
 
     <main class="page">
       <section class="hero">
@@ -116,6 +116,8 @@
       @close="closeForm"
       @save="saveHabit"
     />
+
+    <ProfileModal :isOpen="isProfileOpen" @close="isProfileOpen = false" />
   </div>
 </template>
 
@@ -125,12 +127,14 @@ import AddHabitForm from "../components/AddHabitForm.vue";
 import HabitList from "../components/HabitList.vue";
 import Navbar from "../components/Navbar.vue";
 import ProgressChart from "../components/ProgressChart.vue";
+import ProfileModal from "../components/ProfileModal.vue";
 import { useHabitStore } from "../store/habitStore";
 import { formatLocalDate } from "../utils/date";
 
 const habitStore = useHabitStore();
 const filter = ref("all");
 const isFormVisible = ref(false);
+const isProfileOpen = ref(false);
 const editingHabit = ref(null);
 const isSubmitting = ref(false);
 
@@ -183,6 +187,10 @@ const dashboardState = computed(() => {
 function openCreateForm() {
   editingHabit.value = null;
   isFormVisible.value = true;
+}
+
+function openProfileModal() {
+  isProfileOpen.value = true;
 }
 
 function openEditForm(habit) {

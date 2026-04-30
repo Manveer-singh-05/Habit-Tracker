@@ -3,59 +3,61 @@
     <main class="profile-wrap">
       <section class="profile-card">
         <div class="profile-header">
-          <h1>Welcome, {{ displayName }} <span aria-hidden="true">👋</span></h1>
-          <p>
-            Manage your personal details, update profile information, and keep
-            your account up to date all in one place.
-          </p>
+          <h1>User Profile</h1>
         </div>
 
-        <hr class="divider" />
-
         <div class="profile-body">
-          <div class="avatar-column">
-            <div class="avatar-circle" aria-hidden="true">👤</div>
-          </div>
-
-          <div class="details-column">
-            <p>
-              <strong>Name:</strong>
-              <span v-if="!isEditing">{{ authStore.profile.name || displayName }}</span>
-              <input
-                v-else
-                v-model.trim="draft.name"
-                class="profile-input"
-                type="text"
-                maxlength="40"
-                placeholder="Enter your name"
-              />
-            </p>
-            <p><strong>Email:</strong> {{ authStore.user?.email || 'Not available' }}</p>
-            <p>
-              <strong>Phone:</strong>
-              <span v-if="!isEditing">{{ authStore.profile.phone || 'Not added' }}</span>
-              <input
-                v-else
-                v-model.trim="draft.phone"
-                class="profile-input"
-                type="text"
-                maxlength="20"
-                placeholder="Enter phone number"
-              />
-            </p>
-            <p>
-              <strong>Bio:</strong>
-              <span v-if="!isEditing">{{ authStore.profile.bio || 'No bio yet' }}</span>
-              <textarea
-                v-else
-                v-model.trim="draft.bio"
-                class="profile-input profile-textarea"
-                maxlength="160"
-                placeholder="Write a short bio"
-              />
-            </p>
-            <p><strong>Last Login:</strong> {{ formattedLastLogin }}</p>
-          </div>
+          <table class="profile-table">
+            <tr>
+              <td class="label">Name:</td>
+              <td>
+                <span v-if="!isEditing">{{ authStore.profile.name || displayName }}</span>
+                <input
+                  v-else
+                  v-model.trim="draft.name"
+                  class="profile-input"
+                  type="text"
+                  maxlength="40"
+                  placeholder="Enter your name"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td class="label">Email:</td>
+              <td>{{ authStore.user?.email || 'Not available' }}</td>
+            </tr>
+            <tr>
+              <td class="label">Phone:</td>
+              <td>
+                <span v-if="!isEditing">{{ authStore.profile.phone || 'Not added' }}</span>
+                <input
+                  v-else
+                  v-model.trim="draft.phone"
+                  class="profile-input"
+                  type="text"
+                  maxlength="20"
+                  placeholder="Enter phone number"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td class="label">Bio:</td>
+              <td>
+                <span v-if="!isEditing">{{ authStore.profile.bio || 'No bio yet' }}</span>
+                <textarea
+                  v-else
+                  v-model.trim="draft.bio"
+                  class="profile-input profile-textarea"
+                  maxlength="160"
+                  placeholder="Write a short bio"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td class="label">Last Login:</td>
+              <td>{{ formattedLastLogin }}</td>
+            </tr>
+          </table>
         </div>
 
         <div class="action-row">
@@ -237,163 +239,150 @@ const submitPasswordChange = async () => {
 <style scoped>
 .profile-page {
   min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 22px;
-  background-image:
-    linear-gradient(rgba(5, 12, 23, 0.58), rgba(5, 12, 23, 0.58)),
-    url('/auth-background.jpg');
-  background-size: cover;
-  background-position: center;
+  padding: 20px;
+  background-color: #f5f5f5;
 }
 
 .profile-wrap {
-  width: min(980px, 100%);
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .profile-card {
-  background: rgba(110, 154, 205, 0.33);
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  border-radius: 26px;
-  padding: clamp(1.25rem, 2vw, 2rem);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.25);
+  background: #ffffff;
+  border: 1px solid #ccc;
+  padding: 20px;
+  margin-bottom: 20px;
 }
 
 .profile-header h1 {
-  margin: 0;
-  color: #0b162d;
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 800;
-}
-
-.profile-header p {
-  margin: 0.9rem 0 0;
-  color: rgba(11, 22, 45, 0.76);
-  max-width: 62ch;
-  line-height: 1.5;
-  font-size: 1.22rem;
-}
-
-.divider {
-  border: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.24);
-  margin: 1.65rem 0;
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 28px;
+  font-weight: bold;
+  border-bottom: 2px solid #2563eb;
+  padding-bottom: 10px;
 }
 
 .profile-body {
-  display: grid;
-  grid-template-columns: 180px 1fr;
-  gap: 22px;
-  align-items: start;
+  width: 100%;
 }
 
-.avatar-column {
-  display: flex;
-  justify-content: center;
+.profile-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.avatar-circle {
-  width: 152px;
-  height: 152px;
-  border-radius: 999px;
-  border: 5px solid rgba(255, 255, 255, 0.65);
-  background: rgba(255, 255, 255, 0.26);
-  display: grid;
-  place-items: center;
-  font-size: 4rem;
+.profile-table tr {
+  border-bottom: 1px solid #ddd;
 }
 
-.details-column p {
-  margin: 0 0 1rem;
-  color: #0f1d37;
-  font-size: 1.55rem;
-  line-height: 1.4;
+.profile-table td {
+  padding: 12px;
+  vertical-align: top;
 }
 
-.details-column strong {
-  color: #0a1428;
+.profile-table .label {
+  font-weight: bold;
+  color: #333;
+  width: 120px;
+  background-color: #f0f0f0;
+}
+
+.profile-table td:not(.label) {
+  color: #555;
 }
 
 .profile-input {
-  width: min(460px, 100%);
-  margin-top: 0.45rem;
-  display: block;
-  border-radius: 12px;
-  border: 1px solid rgba(15, 29, 55, 0.24);
-  background: rgba(255, 255, 255, 0.64);
-  padding: 0.75rem 0.9rem;
-  font-size: 1rem;
-  color: #0f1d37;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #999;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
 }
 
 .profile-textarea {
-  min-height: 96px;
+  min-height: 80px;
   resize: vertical;
 }
 
 .action-row {
-  margin-top: 1.25rem;
+  margin-top: 20px;
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
 }
 
 .action-button {
-  border: 0;
-  border-radius: 14px;
-  padding: 0.82rem 1.4rem;
-  font-size: 1rem;
-  font-weight: 700;
+  border: 1px solid #999;
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: bold;
   cursor: pointer;
+  background-color: #e0e0e0;
+  color: #333;
 }
 
 .action-button.primary {
-  background: linear-gradient(135deg, #2563eb, #426dff);
+  background-color: #2563eb;
   color: white;
+  border-color: #1e40af;
 }
 
 .action-button.accent {
-  background: linear-gradient(135deg, #7c3aed, #9333ea);
+  background-color: #7c3aed;
   color: white;
+  border-color: #6d28d9;
 }
 
 .action-button.ghost {
-  background: rgba(255, 255, 255, 0.66);
-  color: #0f1d37;
+  background-color: #f0f0f0;
+  color: #333;
+  border-color: #999;
 }
 
 .helper-note {
-  margin-top: 0.85rem;
-  color: #0f1d37;
-  font-weight: 600;
+  margin-top: 10px;
+  color: #555;
+  font-weight: bold;
+  padding: 10px;
+  background-color: #fffacd;
+  border: 1px solid #ddd;
 }
 
 .password-form {
-  margin-top: 1rem;
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
 }
 
 .password-grid {
-  display: grid;
-  gap: 0.85rem;
-  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
 }
 
 .password-grid label {
   display: block;
-  color: #0a1428;
-  font-weight: 700;
-  font-size: 0.95rem;
+  color: #333;
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 3px;
 }
 
 @media (max-width: 768px) {
-  .profile-body {
-    grid-template-columns: 1fr;
+  .profile-table td,
+  .profile-table .label {
+    display: block;
+    width: 100%;
   }
 
-  .avatar-column {
-    justify-content: flex-start;
+  .profile-table tr {
+    display: block;
+    margin-bottom: 10px;
   }
 }
 </style>
