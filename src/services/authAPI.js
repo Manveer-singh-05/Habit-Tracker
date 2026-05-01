@@ -1,5 +1,5 @@
-// API base URL - uses vite proxy in development, full URL in production
-const API_BASE_URL = import.meta.env.PROD ? (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') : '/api'
+// API base URL - On Vercel, backend is at /_/backend/api
+const API_BASE_URL = import.meta.env.PROD ? '/_/backend/api' : '/api'
 
 export const authAPI = {
   async signup(email, password, confirmPassword) {
