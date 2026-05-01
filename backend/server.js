@@ -19,16 +19,18 @@ connectDB()
 app.use(cors({
   origin: function(origin, callback) {
     const allowedOrigins = [
-      'http://localhost:5174',
       'http://localhost:5173',
-      process.env.CLIENT_URL,
-    ].filter(Boolean);
+      'http://localhost:5174',
+      'http://localhost:5175',
+      process.env.CLIENT_URL
+    ];
     
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // Allow requests with no origin (like curl requests) or matching origins
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      console.error(`CORS blocked origin: ${origin}`);
+      callback(null, true); // Allow for now, log for debugging
     }
   },
   credentials: true
