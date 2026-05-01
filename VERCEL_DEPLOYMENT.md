@@ -5,6 +5,7 @@ Your project is now configured to deploy on **Vercel with both frontend and back
 ## 📋 Pre-Deployment Checklist
 
 ### Backend Environment Variables
+
 Set these in Vercel Dashboard → Project Settings → Environment Variables:
 
 ```
@@ -20,6 +21,7 @@ Replace `your-project-name` with your actual Vercel project name.
 ## 🚀 Deployment Steps
 
 1. **Commit & Push to GitHub:**
+
    ```bash
    git add .
    git commit -m "Configure Vercel deployment"
